@@ -1,5 +1,5 @@
 'use strict';
-// Generated on 2015-04-10 using generator-wim 0.0.1
+// Generated on 2015-04-15 using generator-wim 0.0.1
 
 var gulp = require('gulp');
 var open = require('open');
