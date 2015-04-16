@@ -155,7 +155,7 @@ require([
                 "includeInLayerList": true,
                 "zoomScale": 144448
             }
-        }, "NAWQA networks layer" : {
+        }, "NAWQA networks" : {
             "url": "http://wimsharedlb-418672833.us-east-1.elb.amazonaws.com/arcgis/rest/services/NAWQA/tablesTest/MapServer",
             "visibleLayers": [1],
             "arcOptions": {
