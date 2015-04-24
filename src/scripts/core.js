@@ -11,6 +11,7 @@ var allLayers;
 
 require([
     'esri/map',
+    "esri/dijit/HomeButton",
     'application/bootstrapmap',
     'esri/layers/ArcGISTiledMapServiceLayer',
     'esri/dijit/Geocoder',
@@ -24,6 +25,7 @@ require([
     'dojo/domReady!'
 ], function (
     Map,
+    HomeButton,
     BootstrapMap,
     ArcGISTiledMapServiceLayer,
     Geocoder,
@@ -43,6 +45,10 @@ require([
         center: [-95.6, 38.6],
         zoom: 4
     });
+    var home = new HomeButton({
+        map: map
+    }, "homeButton");
+    home.startup();
 
     //following block forces map size to override problems with default behavior
     $('#mapDiv').height($('body').height());
@@ -57,20 +63,32 @@ require([
     on(map, "load", function() {
         var scale =  map.getScale().toFixed(0);
         $('#scale')[0].innerHTML = addCommas(scale);
+        var initMapCenter = webMercatorUtils.webMercatorToGeographic(map.extent.getCenter());
+        $('#latitude').html(initMapCenter.y.toFixed(3));
+        $('#longitude').html(initMapCenter.x.toFixed(3));
     });
     //displays map scale on scale change (i.e. zoom level)
     on(map, "zoom-end", function () {
         var scale =  map.getScale().toFixed(0);
         $('#scale')[0].innerHTML = addCommas(scale);
     });
-    //displays latitude and longitude on cursor move
+
+    //updates lat/lng indicator on mouse move. does not apply on devices w/out mouse. removes "map center" label
     on(map, "mouse-move", function (cursorPosition) {
+        $('#mapCenterLabel').css("display", "none");
         if (cursorPosition.mapPoint != null) {
             var geographicMapPt = webMercatorUtils.webMercatorToGeographic(cursorPosition.mapPoint);
-            $('#latitude')[0].innerHTML = geographicMapPt.y.toFixed(3);
-            $('#longitude')[0].innerHTML = geographicMapPt.x.toFixed(3);
+            $('#latitude').html(geographicMapPt.y.toFixed(3));
+            $('#longitude').html(geographicMapPt.x.toFixed(3));
         }
-
+    });
+    //updates lat/lng indicator to map center after pan and shows "map center" label.
+    on(map, "pan-end", function () {
+        //displays latitude and longitude of map center
+        $('#mapCenterLabel').css("display", "inline");
+        var geographicMapCenter = webMercatorUtils.webMercatorToGeographic(map.extent.getCenter());
+        $('#latitude').html(geographicMapCenter.y.toFixed(3));
+        $('#longitude').html(geographicMapCenter.x.toFixed(3));
     });
 
     var nationalMapBasemap = new ArcGISTiledMapServiceLayer('http://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer');
@@ -516,12 +534,13 @@ require([
 });
 
 $(document).ready(function () {
-    $('#legendButtonNavBar, #legendButtonSidebar').on('click', function () {
-        $('#legend').toggle();
-        //return false;
-    });
-    $('#legendClose').on('click', function () {
-        $('#legend').hide();
-    });
+    //7 lines below are handler for the legend buttons. to be removed if we stick with the in-map legend toggle
+    //$('#legendButtonNavBar, #legendButtonSidebar').on('click', function () {
+    //    $('#legend').toggle();
+    //    //return false;
+    //});
+    //$('#legendClose').on('click', function () {
+    //    $('#legend').hide();
+    //});
 
 });
