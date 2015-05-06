@@ -525,6 +525,8 @@ require([
 
                                 $("#slider").mouseleave(function() {
                                     $(".opacitySlider").remove();
+                                }).touchend(function() {
+                                    $(".opacitySlider").remove();
                                 });
                             }
                             $('#slider').change(function(event) {
