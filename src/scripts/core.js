@@ -516,7 +516,7 @@ require([
                         $("#opacity"+camelize(layerName)).hover(function () {
                             if ($("#slider").length == 0) {
                                 var currOpacity = map.getLayer(options.id).opacity;
-                                var slider = $('<div class="opacitySlider"><label id="opacityValue">Opacity: ' + currOpacity + '</label><input id="slider" type="range"></div>');
+                                var slider = $('<div class="opacitySlider"><label id="opacityValue">Opacity: ' + currOpacity + '</label><label class="opacityClose pull-right">X</label><input id="slider" type="range"></div>');
                                 $("body").append(slider);[0]
 
                                 $("#slider")[0].value = currOpacity*100;
@@ -525,7 +525,9 @@ require([
 
                                 $("#slider").mouseleave(function() {
                                     $(".opacitySlider").remove();
-                                }).touchend(function() {
+                                });
+
+                                $(".opacityClose").click(function() {
                                     $(".opacitySlider").remove();
                                 });
                             }
