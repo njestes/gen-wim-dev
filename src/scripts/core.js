@@ -520,7 +520,7 @@ require([
                                 $("body").append(slider);[0]
 
                                 $("#slider")[0].value = currOpacity*100;
-                                $(".opacitySlider").css('left', event.clientX-200);
+                                $(".opacitySlider").css('left', event.clientX-180);
                                 $(".opacitySlider").css('top', event.clientY-5);
 
                                 $("#slider").mouseleave(function() {
