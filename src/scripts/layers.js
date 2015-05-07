@@ -125,7 +125,7 @@ require([
                     "visibleLayers": [5,6,7],
                     "options":{
                         "id": "cat1",
-                        "opacity": 0.5,
+                        "opacity": 1.0,
                         "visible": true
                     },
                     "wimOptions":{
@@ -175,6 +175,7 @@ require([
                 "NAWQA networks" : {
                     "url": "http://wimsharedlb-418672833.us-east-1.elb.amazonaws.com/arcgis/rest/services/NAWQA/tablesTest/MapServer",
                     "options": {
+                        "id": "nawqaNetworks",
                         "layers": [1],
                         "visible": false,
                         "opacity": 0.6
@@ -182,7 +183,8 @@ require([
                     "wimOptions": {
                         "type": "layer",
                         "layerType": "agisDynamic",
-                        "includeInLayerList": true
+                        "includeInLayerList": true,
+                        "hasOpacitySlider": true
                     }
                 }
             }
