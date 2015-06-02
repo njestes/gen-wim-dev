@@ -6,8 +6,7 @@ var allLayers;
 require([
     "esri/geometry/Extent",
     "esri/layers/WMSLayerInfo",
-    "esri/layers/FeatureLayer",
-    'dojo/domReady!'
+    "esri/layers/FeatureLayer"
 ], function(
     Extent,
     WMSLayerInfo,
@@ -47,8 +46,7 @@ require([
                     "wimOptions": {
                         "type": "layer",
                         "layerType": "agisWMS",
-                        "includeInLayerList": true,
-                        "includeLegend" : true
+                        "includeInLayerList": true
                     }
                 },
                 "NOAA Flood Warnings": {
@@ -98,8 +96,7 @@ require([
                     "wimOptions": {
                         "type": "layer",
                         "layerType": "agisFeature",
-                        "includeInLayerList": true,
-                        "includeLegend" : false
+                        "includeInLayerList": true
                     }
                 },
                 "FIM Sites": {
@@ -113,8 +110,7 @@ require([
                         "type": "layer",
                         "layerType": "agisFeature",
                         "includeInLayerList": true,
-                        "hasOpacitySlider": true,
-                        "includeLegend" : true
+                        "hasOpacitySlider": true
                     }
                 }
             }
@@ -136,8 +132,7 @@ require([
                         "type": "layer",
                         "layerType": "agisDynamic",
                         "includeInLayerList": true,
-                        "exclusiveGroupName":"Coastal Erosion Hazard",
-                        "includeLegend" : true
+                        "exclusiveGroupName":"Coastal Erosion Hazard"
                     }
                 },
                 "Cat 2": {
@@ -152,8 +147,7 @@ require([
                         "type": "layer",
                         "layerType": "agisDynamic",
                         "includeInLayerList": true,
-                        "exclusiveGroupName":"Coastal Erosion Hazard",
-                        "includeLegend" : true
+                        "exclusiveGroupName":"Coastal Erosion Hazard"
                     }
                 }
             }
@@ -175,8 +169,7 @@ require([
                         "layerType": "agisDynamic",
                         "includeInLayerList": true,
                         "zoomScale": 144448,
-                        "hasOpacitySlider": true,
-                        "includeLegend" : true
+                        "hasOpacitySlider": true
                     }
                 },
                 "NAWQA networks" : {
@@ -191,10 +184,23 @@ require([
                         "type": "layer",
                         "layerType": "agisDynamic",
                         "includeInLayerList": true,
-                        "hasOpacitySlider": true,
-                        "includeLegend" : false
+                        "hasOpacitySlider": true
                     }
-                }
+                },
+                /*"NHD Streams" : {
+                    "url": "http://50.17.205.92:6080/ArcGIS/rest/services/FishVis/supplementalLayers/MapServer",
+                    "options": {
+                        "id": "nhdStreams",
+                        "layers": [4],
+                        "visible": true
+                    },
+                    "wimOptions": {
+                        "type": "layer",
+                        "layerType": "agisDynamic",
+                        "includeInLayerList": true,
+                        "zoomScale": 144448
+                    }
+                },*/
             }
         }
     ]

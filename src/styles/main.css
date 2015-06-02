@@ -167,6 +167,8 @@ body {
     border: solid 1px white;
     background-color: black;
     z-index: 1000;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
     border-radius: 5px;
 }
 
