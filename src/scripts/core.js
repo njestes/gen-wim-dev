@@ -166,18 +166,12 @@ require([
     //end code for adding draggability to infoWindow
 
     on(map, "click", function(evt) {
-
         var graphic = new Graphic();
 
         var feature = graphic;
 
         var template = new esri.InfoTemplate("test popup",
-                        "<b>Classification:</b> <br/>"+
-                        "<p><b>Wetland Type:</b> <br/><br/>" +
-                        "<b>Acres:</b> <br/>" + 
-                        "<b>Status:</b> <br/>" + 
-                        "<b>Source Type:</b> <br/>" +
-                        "<br/><p><a id='infoWindowLink' href='javascript:void(0)'>Zoom to wetland</a></p>");
+                        "attributes and stuff go here");
                         
         //ties the above defined InfoTemplate to the feature result returned from a click event 
         
