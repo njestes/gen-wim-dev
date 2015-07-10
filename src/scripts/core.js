@@ -10,21 +10,27 @@ var map;
 var allLayers;
 var maxLegendHeight;
 var maxLegendDivHeight;
-
+var dragInfoWindows = true;
+        
 require([
+    'esri/arcgis/utils',
     'esri/map',
-    "esri/dijit/HomeButton",
+    'esri/dijit/HomeButton',
     'esri/layers/ArcGISTiledMapServiceLayer',
     'esri/dijit/Geocoder',
     'esri/dijit/PopupTemplate',
     'esri/graphic',
     'esri/geometry/Multipoint',
     'esri/symbols/PictureMarkerSymbol',
-    "esri/geometry/webMercatorUtils",
+    'esri/geometry/webMercatorUtils',
+    'dojo/dnd/Moveable',
+    'dojo/query',
     'dojo/dom',
+    'dojo/dom-class',
     'dojo/on',
     'dojo/domReady!'
 ], function (
+    arcgisUtils,
     Map,
     HomeButton,
     ArcGISTiledMapServiceLayer,
@@ -34,7 +40,10 @@ require([
     Multipoint,
     PictureMarkerSymbol,
     webMercatorUtils,
+    Moveable,
+    query,
     dom,
+    domClass,
     on
 ) {
 
@@ -72,6 +81,24 @@ require([
         var initMapCenter = webMercatorUtils.webMercatorToGeographic(map.extent.getCenter());
         $('#latitude').html(initMapCenter.y.toFixed(3));
         $('#longitude').html(initMapCenter.x.toFixed(3));
+
+        //code for adding draggability to infoWindow. http://www.gavinr.com/2015/04/13/arcgis-javascript-draggable-infowindow/
+        if (dragInfoWindows == true) {
+            var handle = query(".title", map.infoWindow.domNode)[0];
+            var dnd = new Moveable(map.infoWindow.domNode, {
+                handle: handle
+            });
+            
+            // when the infoWindow is moved, hide the arrow:
+            on(dnd, 'FirstMove', function() {
+                // hide pointer and outerpointer (used depending on where the pointer is shown)
+                var arrowNode =  query(".outerPointer", map.infoWindow.domNode)[0];
+                domClass.add(arrowNode, "hidden");
+                
+                var arrowNode =  query(".pointer", map.infoWindow.domNode)[0];
+                domClass.add(arrowNode, "hidden");
+            }.bind(this));
+        }
     });
     //displays map scale on scale change (i.e. zoom level)
     on(map, "zoom-end", function () {
@@ -134,6 +161,32 @@ require([
 
     on(dom.byId('btnNatlMap'), 'click', function () {
         map.addLayer(nationalMapBasemap);
+    });
+
+    //end code for adding draggability to infoWindow
+
+    on(map, "click", function(evt) {
+
+        var graphic = new Graphic();
+
+        var feature = graphic;
+
+        var template = new esri.InfoTemplate("test popup",
+                        "<b>Classification:</b> <br/>"+
+                        "<p><b>Wetland Type:</b> <br/><br/>" +
+                        "<b>Acres:</b> <br/>" + 
+                        "<b>Status:</b> <br/>" + 
+                        "<b>Source Type:</b> <br/>" +
+                        "<br/><p><a id='infoWindowLink' href='javascript:void(0)'>Zoom to wetland</a></p>");
+                        
+        //ties the above defined InfoTemplate to the feature result returned from a click event 
+        
+        feature.setInfoTemplate(template);
+
+        map.infoWindow.setFeatures([feature]);
+        map.infoWindow.show(evt.mapPoint);
+
+        map.infoWindow.show();
     });
 
     var geocoder = new Geocoder({
