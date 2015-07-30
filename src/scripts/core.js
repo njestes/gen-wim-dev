@@ -16,6 +16,7 @@ require([
     'esri/arcgis/utils',
     'esri/map',
     'esri/dijit/HomeButton',
+    'esri/dijit/LocateButton',
     'esri/layers/ArcGISTiledMapServiceLayer',
     'esri/dijit/Geocoder',
     'esri/dijit/PopupTemplate',
@@ -33,6 +34,7 @@ require([
     arcgisUtils,
     Map,
     HomeButton,
+    LocateButton,
     ArcGISTiledMapServiceLayer,
     Geocoder,
     PopupTemplate,
@@ -55,10 +57,16 @@ require([
         center: [-95.6, 38.6],
         zoom: 5
     });
+    //button for returning to initial extent
     var home = new HomeButton({
         map: map
     }, "homeButton");
     home.startup();
+    //button for finding and zooming to user's location
+    var locate = new LocateButton({
+        map: map
+    }, "locateButton");
+    locate.startup();
 
     //following block forces map size to override problems with default behavior
     $(window).resize(function () {

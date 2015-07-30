@@ -67,6 +67,13 @@ body {
     z-index: 50;
 }
 
+#locateButton {
+    position: absolute;
+    top: 115px;
+    left: 5px;
+    z-index: 50;
+}
+
 .hover-content {
     display:none;
 }
@@ -167,6 +174,8 @@ body {
     border: solid 1px white;
     background-color: black;
     z-index: 1000;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
     border-radius: 5px;
 }
 
