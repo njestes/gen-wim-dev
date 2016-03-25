@@ -12,6 +12,38 @@ body {
     background-color:#474747;
 }
 
+#aboutNav {
+    /*background-color: #474747;*/
+
+    background: 0 0;
+    border: none;
+    line-height: 16px;
+    /*padding-top: 0;*/
+    /*padding-bottom: 0;*/
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    top: 2px;
+    transition: .2s;
+    color: rgba(255,255,255,.35);
+}
+
+
+#aboutNav{
+    letter-spacing: 2px;
+    position: relative; top: 2px;
+    transition: 0.2s;
+    color: rgba(255,255,255,0.35);
+}
+#aboutNav:hover{
+    cursor: pointer;
+    color: rgba(255,255,255,1);
+    transition: 0.2s;
+}
+#aboutNav:focus{
+    outline: none;
+}
+
 .keepit100 {
     height: 100%;
 }
@@ -78,6 +110,19 @@ body {
     display:none;
 }
 
+.identification {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 9pt;
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0 0 0 8px;
+    opacity: .75;
+    text-align: center;
+    color: #6E7490;
+}
+
 .latLngScale {
     position:absolute;
     padding:4px;
@@ -95,6 +140,12 @@ body {
 
 .latLngScale:hover .hover-content {
     display:inline-block;
+}
+
+.lyrTogDiv {
+    width: 100%;
+    padding: 1px;
+    font-weight: bold;
 }
 
 .alert {
@@ -155,6 +206,27 @@ body {
     width: 100%;
 }
 
+.lgi-zoom {
+    color: white;
+    background-color: black;
+    border: none !important;
+    padding: 5px 5px !important;
+}
+
+a.lgi-zoom {
+    color: white;
+}
+
+a.lgi-zoom:hover {
+    color: black;
+}
+
+.lyrTog {
+    width: 100%;
+    padding: 1px;
+    font-weight: bold;
+}
+
 .map {
     overflow: auto;
 }
@@ -162,6 +234,10 @@ body {
 #mapDiv {
     min-height: 100%;
     max-height: 100%;
+}
+
+.opacity {
+    padding-left: 10px;
 }
 
 .opacitySlider {
@@ -220,6 +296,17 @@ body {
     text-align: center;
 }
 
+#wim_logo {
+    background: #000 0 0;
+    border-radius: 5px;
+    width: 45px;
+}
+
+#wim_logo:hover{
+    background: blue none repeat scroll 0 0;
+    cursor: pointer;
+}
+
 .wim-sidebar-panel {
     margin-bottom: 2px;
 }
@@ -232,9 +319,19 @@ input[type="checkbox"], input[type="radio"] {
     float: left;
 }
 
+.zoomDialog {
+    position: absolute;
+    color: white;
+    /*width: 200px;*/
+    padding: 5px;
+    /*padding-bottom: 40px;*/
+    opacity: 0.9;
+    border: solid 1px white;
+    background-color: black;
+    z-index: 1000;
+    border-radius: 5px;
+}
 
-.lyrTog {
-    width: 100%;
-    padding: 1px;
-    font-weight: bold;
+.zoomClose {
+    color: white;
 }

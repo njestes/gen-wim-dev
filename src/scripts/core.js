@@ -11,7 +11,8 @@ var allLayers;
 var maxLegendHeight;
 var maxLegendDivHeight;
 var dragInfoWindows = true;
-        
+var defaultMapCenter = [-95.6, 38.6];
+
 require([
     'esri/arcgis/utils',
     'esri/map',
@@ -22,6 +23,7 @@ require([
     'esri/dijit/PopupTemplate',
     'esri/graphic',
     'esri/geometry/Multipoint',
+    'esri/geometry/Point',
     'esri/symbols/PictureMarkerSymbol',
     'esri/geometry/webMercatorUtils',
     'dojo/dnd/Moveable',
@@ -40,6 +42,7 @@ require([
     PopupTemplate,
     Graphic,
     Multipoint,
+    Point,
     PictureMarkerSymbol,
     webMercatorUtils,
     Moveable,
@@ -54,7 +57,8 @@ require([
 
     map = Map('mapDiv', {
         basemap: 'national-geographic',
-        center: [-95.6, 38.6],
+        //center: [-95.6, 38.6],
+        center: defaultMapCenter,
         zoom: 5
     });
     //button for returning to initial extent
@@ -96,13 +100,13 @@ require([
             var dnd = new Moveable(map.infoWindow.domNode, {
                 handle: handle
             });
-            
+
             // when the infoWindow is moved, hide the arrow:
             on(dnd, 'FirstMove', function() {
                 // hide pointer and outerpointer (used depending on where the pointer is shown)
                 var arrowNode =  query(".outerPointer", map.infoWindow.domNode)[0];
                 domClass.add(arrowNode, "hidden");
-                
+
                 var arrowNode =  query(".pointer", map.infoWindow.domNode)[0];
                 domClass.add(arrowNode, "hidden");
             }.bind(this));
@@ -179,10 +183,10 @@ require([
         var feature = graphic;
 
         var template = new esri.InfoTemplate("test popup",
-                        "attributes and stuff go here");
-                        
-        //ties the above defined InfoTemplate to the feature result returned from a click event 
-        
+            "attributes and stuff go here");
+
+        //ties the above defined InfoTemplate to the feature result returned from a click event
+
         feature.setInfoTemplate(template);
 
         map.infoWindow.setFeatures([feature]);
@@ -241,9 +245,9 @@ require([
         clearFindGraphics();
         var g = (item.graphic ? item.graphic : item.result.feature);
         g.setSymbol(sym);
-        addPlaceGraphic(item.result,g.symbol);
+        //addPlaceGraphic(item.result,g.symbol);
         // Close modal
-        $('#geosearchModal').modal('hide');
+        //$('#geosearchModal').modal('hide');
     }
     function geocodeResults(places) {
         places = places.results;
@@ -252,9 +256,13 @@ require([
             var symbol = sym;
             // Create and add graphics with pop-ups
             for (var i = 0; i < places.length; i++) {
-                addPlaceGraphic(places[i], symbol);
+                //addPlaceGraphic(places[i], symbol);
             }
-            zoomToPlaces(places);
+            //zoomToPlaces(places);
+            var centerPoint = new Point(places[0].feature.geometry);
+            map.centerAndZoom(centerPoint, 17);
+            //map.setLevel(15);
+
         } else {
             //alert('Sorry, address or place not found.');  // TODO
         }
@@ -303,6 +311,7 @@ require([
                 'width':xWidth, 'height': yHeight
             });
     }
+
     // Show modal dialog; handle legend sizing (both on doc ready)
     $(document).ready(function(){
         function showModal() {
@@ -311,6 +320,13 @@ require([
         // Geosearch nav menu is selected
         $('#geosearchNav').click(function(){
             showModal();
+        });
+
+        function showAboutModal () {
+            $('#aboutModal').modal('show');
+        }
+        $('#aboutNav').click(function(){
+            showAboutModal();
         });
 
         $("#html").niceScroll();
@@ -346,7 +362,9 @@ require([
         'esri/geometry/Point',
         'esri/geometry/Extent',
         'esri/layers/ArcGISDynamicMapServiceLayer',
+        'esri/layers/ArcGISImageServiceLayer',
         'esri/layers/FeatureLayer',
+        'esri/SpatialReference',
         'esri/layers/WMSLayer',
         'esri/layers/WMSLayerInfo',
         'dijit/form/CheckBox',
@@ -366,7 +384,9 @@ require([
         Point,
         Extent,
         ArcGISDynamicMapServiceLayer,
+        ArcGISImageServiceLayer,
         FeatureLayer,
+        SpatialReference,
         WMSLayer,
         WMSLayerInfo,
         CheckBox,
@@ -439,6 +459,20 @@ require([
                     addLayer(group.groupHeading, group.showGroupHeading, layer, layerName, exclusiveGroupName, layerDetails.options, layerDetails.wimOptions);
                     //addMapServerLegend(layerName, layerDetails);
                 }
+
+                else if (layerDetails.wimOptions.layerType === 'agisImage') {
+                    var layer = new ArcGISImageServiceLayer(layerDetails.url, layerDetails.options);
+                    //check if include in legend is true
+                    if (layerDetails.wimOptions && layerDetails.wimOptions.includeLegend == true){
+                        legendLayers.push({layer:layer, title: layerName});
+                    }
+                    if (layerDetails.visibleLayers) {
+                        layer.setVisibleLayers(layerDetails.visibleLayers);
+                    }
+                    //map.addLayer(layer);
+                    addLayer(group.groupHeading, group.showGroupHeading, layer, layerName, exclusiveGroupName, layerDetails.options, layerDetails.wimOptions);
+                    //addMapServerLegend(layerName, layerDetails);
+                }
             });
         });
 
@@ -479,7 +513,7 @@ require([
                         });
                     });
 
-                    var exGroupDiv = $('<div id="' + camelize(exclusiveGroupName) + '" class="btn-group-vertical" data-toggle="buttons"></div');
+                    var exGroupDiv = $('<div id="' + camelize(exclusiveGroupName) + '" class="btn-group-vertical" data-toggle="buttons"></div>');
                     $('#toggle').append(exGroupDiv);
                 }
 
@@ -533,14 +567,30 @@ require([
 
                 //create layer toggle
                 //var button = $('<div align="left" style="cursor: pointer;padding:5px;"><span class="glyphspan glyphicon glyphicon-check"></span>&nbsp;&nbsp;' + layerName + '</div>');
-                if (layer.visible && wimOptions.hasOpacitySlider !== undefined && wimOptions.hasOpacitySlider == true) {
-                    var button = $('<div class="btn-group-vertical lyrTog" style="cursor: pointer;" data-toggle="buttons"> <button type="button" class="btn btn-default active" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-check-square-o"></i>&nbsp;&nbsp;' + layerName + '<span id="opacity' + camelize(layerName) + '" class="glyphspan glyphicon glyphicon-adjust pull-right"></button></span></div>');
-                } else if ((!layer.visible && wimOptions.hasOpacitySlider !== undefined && wimOptions.hasOpacitySlider == true)) {
-                    var button = $('<div class="btn-group-vertical lyrTog" style="cursor: pointer;" data-toggle="buttons"> <button type="button" class="btn btn-default" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-square-o"></i>&nbsp;&nbsp;' + layerName + '<span id="opacity' + camelize(layerName) + '" class="glyphspan glyphicon glyphicon-adjust pull-right"></button></span></div>');
-                } else if (layer.visible) {
-                    var button = $('<div class="btn-group-vertical lyrTog" style="cursor: pointer;" data-toggle="buttons"> <button type="button" class="btn btn-default active" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-check-square-o"></i>&nbsp;&nbsp;' + layerName + '</button></span></div>');
+                if (layer.visible && wimOptions.hasOpacitySlider !== undefined && wimOptions.hasOpacitySlider == true && wimOptions.hasZoomto !== undefined && wimOptions.hasZoomto == true) {
+                    //opacity icon and zoomto icon; button selected
+                    var button = $('<div class="btn-group-vertical lyrTogDiv" style="cursor: pointer;" data-toggle="buttons"> <button id="' + layer.id + '"type="button" class="btn btn-default active" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-check-square-o"></i>&nbsp;&nbsp;' + layerName + '<span id="opacity' + camelize(layerName) + '" class="glyphspan glyphicon glyphicon-adjust pull-right opacity"></span><span class="glyphicon glyphicon-search pull-right zoomto"></span></button></div>');
+                } else if (!layer.visible && wimOptions.hasOpacitySlider !== undefined && wimOptions.hasOpacitySlider == true && wimOptions.hasZoomto !== undefined && wimOptions.hasZoomto == true){
+                    //opacity icon and zoomto icon; button not selected
+                    var button = $('<div class="btn-group-vertical lyrTogDiv" style="cursor: pointer;" data-toggle="buttons"> <button id="' + layer.id + '"type="button" class="btn btn-default" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-square-o"></i>&nbsp;&nbsp;' + layerName + '<span id="opacity' + camelize(layerName) + '" class="glyphspan glyphicon glyphicon-adjust pull-right opacity"></span><span class="glyphicon glyphicon-search pull-right zoomto"></span></button></div>');
+                } else if (layer.visible && wimOptions.hasOpacitySlider !== undefined && wimOptions.hasOpacitySlider == true) {
+                    //opacity icon only; button selected
+                    var button = $('<div class="btn-group-vertical lyrTogDiv" style="cursor: pointer;" data-toggle="buttons"> <button id="' + layer.id + '"type="button" class="btn btn-default active" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-check-square-o"></i>&nbsp;&nbsp;' + layerName + '<span id="opacity' + camelize(layerName) + '" class="glyphspan glyphicon glyphicon-adjust pull-right"></button></div>');
+                } else if (!layer.visible && wimOptions.hasOpacitySlider !== undefined && wimOptions.hasOpacitySlider == true) {
+                    //opacity icon only; button not selected
+                    var button = $('<div class="btn-group-vertical lyrTogDiv" style="cursor: pointer;" data-toggle="buttons"> <button id="' + layer.id + '"type="button" class="btn btn-default" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-square-o"></i>&nbsp;&nbsp;' + layerName + '<span id="opacity' + camelize(layerName) + '" class="glyphspan glyphicon glyphicon-adjust pull-right"></button></div>');
+                } else if (layer.visible && wimOptions.hasOpacitySlider == false && wimOptions.hasZoomto !== undefined && wimOptions.hasZoomto == true){
+                    //zoomto icon only; button selected
+                    var button = $('<div class="btn-group-vertical lyrTogDiv" style="cursor: pointer;" data-toggle="buttons"> <button id="' + layer.id + '"type="button" class="btn btn-default active" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-check-square-o"></i>&nbsp;&nbsp;' + layerName + '<span class="glyphicon glyphicon-search pull-right zoomto"></span></button></span></div>');
+                } else if (!layer.visible && wimOptions.hasOpacitySlider == false && wimOptions.hasZoomto !== undefined && wimOptions.hasZoomto == true) {
+                    //zoomto icon only; button not selected
+                    var button = $('<div class="btn-group-vertical lyrTogDiv" style="cursor: pointer;" data-toggle="buttons"> <button id="' + layer.id + '"type="button" class="btn btn-default" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-square-o"></i>&nbsp;&nbsp;' + layerName + '<span class="glyphicon glyphicon-search pull-right zoomto"></span></button></span></div>');
+                } else if(layer.visible) {
+                    //no icons; button selected
+                    var button = $('<div class="btn-group-vertical lyrTogDiv" style="cursor: pointer;" data-toggle="buttons"> <button id="' + layer.id + '"type="button" class="btn btn-default active" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-check-square-o"></i>&nbsp;&nbsp;' + layerName + '</button></span></div>');
                 } else {
-                    var button = $('<div class="btn-group-vertical lyrTog" style="cursor: pointer;" data-toggle="buttons"> <button type="button" class="btn btn-default" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-square-o"></i>&nbsp;&nbsp;' + layerName + '</button> </div>');
+                    //no icons; button not selected
+                    var button = $('<div class="btn-group-vertical lyrTogDiv" style="cursor: pointer;" data-toggle="buttons"> <button id="' + layer.id + '"type="button" class="btn btn-default" aria-pressed="true" style="font-weight: bold;text-align: left"><i class="glyphspan fa fa-square-o"></i>&nbsp;&nbsp;' + layerName + '</button> </div>');
                 }
 
                 //click listener for regular
@@ -586,6 +636,7 @@ require([
                     $('#' + groupDivID).append(exGroupDiv);
                 } else {
                     $('#' + groupDivID).append(button);
+                    //begin opacity slider logic
                     if ($("#opacity"+camelize(layerName)).length > 0) {
                         $("#opacity"+camelize(layerName)).hover(function () {
                             $(".opacitySlider").remove();
@@ -616,6 +667,51 @@ require([
                             });
                         });
                     }
+                    //end opacity slider logic
+
+                    //begin zoomto logic (in progress)
+                    $(".zoomto").hover(function (e) {
+
+                        $(".zoomDialog").remove();
+                        var layerToChange = this.parentNode.id;
+                        var zoomDialog = $('<div class="zoomDialog"><label class="zoomClose pull-right">X</label><br><div class="list-group"><a href="#" id="zoomscale" class="list-group-item lgi-zoom zoomscale">Zoom to scale</a> <a id="zoomcenter" href="#" class="list-group-item lgi-zoom zoomcenter">Zoom to center</a><a id="zoomextent" href="#" class="list-group-item lgi-zoom zoomextent">Zoom to extent</a></div></div>');
+
+                        $("body").append(zoomDialog);
+
+                        $(".zoomDialog").css('left', event.clientX-80);
+                        $(".zoomDialog").css('top', event.clientY-5);
+
+                        $(".zoomDialog").mouseleave(function() {
+                            $(".zoomDialog").remove();
+                        });
+
+                        $(".zoomClose").click(function() {
+                            $(".zoomDialog").remove();
+                        });
+
+                        $('#zoomscale').click(function (e) {
+                            //logic to zoom to layer scale
+                            var layerMinScale = map.getLayer(layerToChange).minScale;
+                            map.setScale(layerMinScale);
+                        });
+
+                        $("#zoomcenter").click(function (e){
+                            //logic to zoom to layer center
+                            //var layerCenter = map.getLayer(layerToChange).fullExtent.getCenter();
+                            //map.centerAt(layerCenter);
+                            var dataCenter = new Point(defaultMapCenter, new SpatialReference({wkid:4326}));
+                            map.centerAt(dataCenter);
+
+                        });
+
+                        $("#zoomextent").click(function (e){
+                            //logic to zoom to layer extent
+                            var layerExtent = map.getLayer(layerToChange).fullExtent;
+                            map.setExtent(layerExtent);
+                        });
+                    });
+                    //end zoomto logic
+
                 }
             }
 
